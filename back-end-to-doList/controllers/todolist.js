@@ -12,7 +12,7 @@ const ToDo=require('../models/Todolist')
 router.get('/',(req,res)=>{
     ToDo.find({},(err,foundToDo)=>{
         if(!err){
-            res.status(200)
+            res.status(200).json(foundToDo)
         }res.status(200).json(err)
     })
 })
@@ -21,9 +21,9 @@ router.get('/',(req,res)=>{
 ///Create Route
 router.post('/',(req,res)=>{
     const {body}=req
-    ToDoList.create(body,(err,createdToDo)=>{
+    ToDo.create(body,(err,createdToDo)=>{
         if(!err){
-            res.status(200).json({message:`Created ${createdToDo}`})
+            res.status(200).json(createdToDo)
         }else{
             res.status(400).json(err)
         }
@@ -68,11 +68,31 @@ router.delete('/',(req,res)=>{
 
   
 
+
+  router.get('/list',(req,res)=>{
+      ToDo.find({},(err,foundToDo)=>{
+          if(!err){
+              const formattedData=foundToDo.reduce((acc,item)=>{
+                  acc[item.status]=acc[item.status]? [...acc[item.status],item]:[item]
+                  return acc
+              },{})
+              res.status(200).json(formattedData)
+
+          }else{
+              res.status(400).json(err)
+          }
+      })
+  })
+
+
+
+
+
   router.put('/',(req,res)=>{
     const {body}=req
     ToDo.findByIdAndUpdate(req.params.id,body,{new:true},(err,updatedToDo)=>{
         if(!err){
-            res.status(200).json({message:`updated ${updatedToDo}`})
+            res.status(200).json(updatedToDo)
         }else{
             res.status(400).json({message:"something is broken, find it and fix it Orlando"})
         }
@@ -89,3 +109,5 @@ router.get('/:id', (req,res)=>{
         }
     })
 })
+
+module.exports=router
